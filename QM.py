@@ -89,6 +89,10 @@ class state :
             # If they have same type, addiion can be made
             return self.__class__(self.array + other.array)
 
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just add each value
+            return self.__class__(self.array + other)
+
         else :
             # If the have different type, addition is not defined
             raise Exception('Must have same type! Cannot add ket and bra')
@@ -101,6 +105,10 @@ class state :
         if type(self) == type(other) :
             # If they have same type, subtraction can be made
             return self.__class__(self.array - other.array)
+
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just subtract each value
+            return self.__class__(self.array - other)
 
         else :
             # If the have different type, subtraction is not defined
@@ -125,8 +133,13 @@ class state :
                 # Compute the matrix multiplication
                 return bra(np.dot(self.array, other.array))
 
+            elif isinstance(other, numbers.Number) :
+                # If it is just a number, just multiply each value
+                return self.__class__(self.array * other)
+
             else :
                 raise NotImplementedError
+
         else :
             # If the have same type, multiplication is not defined
             raise Exception('Must have different type! Cannot evaluate <v|<v| or |v>|v>')
@@ -134,6 +147,26 @@ class state :
     # Define the unary negation operator
     def __neg__(self) :
         return self.__class__(-self.array)
+
+    # Define the right hand operators (add, sub, and mul)
+    def __radd__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.__class__(self.array + other)
+        else :
+            raise NotImplementedError
+    def __rsub__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.__class__(self.array - other)
+        else :
+            raise NotImplementedError
+    def __rmul__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.__class__(self.array * other)
+        else :
+            raise NotImplementedError
 
     # Define the index operators
     def __getitem__(self, index) :
@@ -229,6 +262,10 @@ class operator :
         if isinstance(other, operator) :
             return operator(self.array + other.array)
 
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just add each value
+            return operator(self.array + other)
+
         else :
             raise NotImplementedError
 
@@ -239,6 +276,10 @@ class operator :
         # Compare the types
         if isinstance(other, operator) :
             return operator(self.array - other.array)
+
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just subtract each value
+            return operator(self.array - other)
 
         else :
             raise NotImplementedError
@@ -256,6 +297,10 @@ class operator :
             # Compute the matrix multiplication
             return ket(np.dot(self.array, other.array))
 
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just multiply each value
+            return operator(self.array * other)
+
         else :
             raise NotImplementedError
 
@@ -272,6 +317,26 @@ class operator :
     # Define the unary negation operator
     def __neg__(self) :
         return operator(-self.array)
+
+    # Define the right hand operators (add, sub, and mul)
+    def __radd__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return operator(self.array + other)
+        else :
+            raise NotImplementedError
+    def __rsub__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return operator(self.array - other)
+        else :
+            raise NotImplementedError
+    def __rmul__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return operator(self.array * other)
+        else :
+            raise NotImplementedError
 
     # Define the index operators
     def __getitem__(self, index) :
