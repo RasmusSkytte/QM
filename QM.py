@@ -2,12 +2,13 @@
 
 # Use numpy as backend for storing data
 import numpy as np
+import numbers
 
 # Define the state class
 class state :
 
     # Class initializer
-    def __init__(self, data, foo='bra') :   # TODO: find a good name for 'foo'
+    def __init__(self, data) :
 
         # Verify that data has the right format
         if isinstance(data, list) :  # In list format, find the inner most list
@@ -19,16 +20,16 @@ class state :
 
         elif isinstance(data, np.ndarray) : # In numpy array format, reshape to be shape (1,N)
             # Get current shape
-            shp = np.shape(data)
+            shape = np.shape(data)
 
             # data is annoying numpy 1-D type
-            if np.size(shp) == 1 :
+            if np.size(shape) == 1 :
                 # Reshape the output to be (1,N)
                 self.array = np.reshape(data,(1,np.size(data))).astype(complex)
 
             # data is 2-D type
             else :
-                dx, dy = sorted(shp)
+                dx, dy = sorted(shape)
 
                 # Verify input is 1-D
                 if dx != 1 :
@@ -37,11 +38,8 @@ class state :
                 # Reshape the output to be (1,N)
                 self.array = np.reshape(data,(1,dy)).astype(complex)
 
-        # Store the type of object
-        self.foo  = foo
-
         # If state is 'ket', transpose the array
-        if self.foo == 'ket':
+        if isinstance(self, ket) :
             self.array = np.transpose(self.array)
 
         # Define array interface
@@ -50,17 +48,21 @@ class state :
 
     # Define the hermitian transpose operator
     def T(self) :
-        if self.foo == 'bra' :
+        if isinstance(self, bra) :
             return ket(np.conj(self.array))
-        elif self.foo == 'ket' :
+        elif isinstance(self, ket) :
             return bra(np.conj(self.array))
         else :
             raise NotImplementedError
 
 
+    # Define conversion to probability
+    def prob(self) :
+        return np.reshape(np.multiply(self.array,self.array),(np.size(self.array),))
+
     # Define conversion to numpy array
     def asnumpy(self) :
-        return self.array
+        return np.reshape(self.array,(np.size(self.array),))
 
 
     # Return a string representation of the data in the state
@@ -76,7 +78,7 @@ class state :
     def __add__(self, other) :
 
         # Compare the types
-        if self.foo == other.foo :
+        if type(self) == type(other) :
             # If they have same type, addiion can be made
             return self.__class__((self.array + other.array)[0])
         else :
@@ -88,7 +90,7 @@ class state :
     def __sub__(self, other) :
 
         # Compare the types
-        if self.foo == other.foo :
+        if type(self) == type(other) :
             # If they have same type, subtraction can be made
             return self.__class__((self.array - other.array)[0])
         else :
@@ -98,32 +100,40 @@ class state :
 
     # Define the multiplication operator
     def __mul__(self, other) :
-        if self.foo != other.foo :
+
+        if type(self) != type(other) :
             # If they have different type, multiplication can be made
-            if self.foo == 'bra' :
+            if isinstance(self, bra) and isinstance(other, ket):
                 # Compute the inner product
                 return np.dot(self.array, other.array)[0][0]
-            elif self.foo == 'ket' :
+            elif isinstance(self, ket) and isinstance(other, bra) :
                 # Compute the outer product
                 return np.outer(self.array, other.array)
+            elif isinstance(self, bra) and isinstance(other, operator) :
+                # Compute the matrix multiplication
+                return bra(np.dot(self.array, other.array))
             else :
                 raise NotImplementedError
         else :
             # If the have same type, multiplication is not defined
             raise Exception('Must have different type! Cannot evaluate <v|<v| or |v>|v>')
 
+    # Define the unary negation operator
+    def __neg__(self) :
+        return self.__class__(-self.array)
+
     # Define the index operators
     def __getitem__(self, index) :
-        if self.foo == 'bra' :
+        if isinstance(self, bra) :
             return self.array[0][index]
-        elif self.foo == 'ket' :
+        elif isinstance(self, ket) :
             return self.array[index][0]
         else :
             raise NotImplementedError
     def __setitem__(self, index, value) :
-        if self.foo == 'bra' :
+        if isinstance(self, bra) :
             self.array[0][index] = value
-        elif self.foo == 'ket' :
+        elif isinstance(self, ket) :
             self.array[index][0] = value
         else :
             raise NotImplementedError
@@ -151,7 +161,7 @@ class ket(state) :
     def __init__(self, data):
 
         # Copy the parents information
-        return super().__init__(data, foo='ket')
+        return super().__init__(data)
 
     # Define print string
     def __str__(self):
@@ -162,12 +172,28 @@ class ket(state) :
 
 # Define the operator class
 class operator :
+
     def __init__(self, data):
         # Store the data
         self.array = data
 
         # Define array interface
         self.__array_interface__ = self.array.__array_interface__
+
+    # Define eigenvalue function
+    def eig(self) :
+        # Use numpy to compute eigenvalues and eigenvectors
+        w, v = np.linalg.eig(self.array)
+
+        # Sort eigenvalues and eigenvectors according to eigenvalue
+        I = np.argsort(w)
+        w = w[I]
+        v = v[:,I]
+
+        # Store the output as a list of bra's
+        v = [bra(u) for u in v.T]
+
+        return w, v
 
     # Define print string
     def __str__(self):
@@ -176,7 +202,7 @@ class operator :
         np.set_printoptions(threshold=10)
 
         # Format the output to show ket notation
-        return 'Ô = ' + str.replace(np.array_str(self.array),'\n','\n    ')
+        return u'O = ' + str.replace(np.array_str(self.array),'\n','\n    ')
 
     # Define conversion to numpy array
     def asnumpy(self) :
@@ -192,9 +218,14 @@ class operator :
         return np.array_str(self.array)
 
 
-    # Define the additiopn operators
+    # Define the addition operators
     def __add__(self, other) :
-        raise NotImplementedError
+
+        # Compare the types
+        if isinstance(other, operator) :
+            return operator(self.array + other.array)
+        else :
+            raise NotImplementedError
 
 
     # Define the subtraction operator
@@ -204,8 +235,29 @@ class operator :
 
     # Define the multiplication operator
     def __mul__(self, other) :
-        raise NotImplementedError
 
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            # Multiply each element with the scalar
+            return operator(self.array * other)
+        elif isinstance(other, ket) :
+            # Compute the matrix multiplication
+            return ket(np.dot(self.array, other.array))
+        else :
+            raise NotImplementedError
+
+    # Define the true division operator
+    def __truediv__(self, other) :
+
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return operator(self.array / other)
+        else :
+            raise NotImplementedError
+
+    # Define the unary negation operator
+    def __neg__(self) :
+        return operator(-self.array)
 
     # Define the index operators
     def __getitem__(self, index) :
