@@ -8,15 +8,15 @@ import numbers
 class state :
 
     # Class initializer
-    def __init__(self, data) : # TODO: Cast the type to real if there are no complex component
+    def __init__(self, data) :
 
         # Verify that data has the right format
         if isinstance(data, list) :  # In list format, find the inner most list
             while isinstance(data[0], list) :
                 data = data[0]
 
-            # Store the data as a numpy array (of complex type)
-            self.array = np.array(data, dtype=complex)
+            # Store the data as a numpy array
+            self.array = np.array(data)
 
         elif isinstance(data, np.ndarray) : # In numpy array format, reshape to be shape (1,N)
             # Get current shape
@@ -25,7 +25,7 @@ class state :
             # data is numpy 1-D type
             if np.size(shape) == 1 :
                 # Reshape the output to be (1,N)
-                self.array = data.astype(complex)
+                self.array = data
 
             # data is 2-D type
             else :
@@ -36,7 +36,7 @@ class state :
                     raise Exception('Input must be 1-D. Are you trying to make an operator?')
 
                 # Reshape the output to be of shape (N,)
-                self.array = np.reshape(data,(dy,)).astype(complex)
+                self.array = np.reshape(data,(dy,))
 
         # Define array interface
         self.__array_interface__ = self.array.__array_interface__
@@ -175,7 +175,7 @@ class ket(state) :
 
 
 # Define the operator class
-class operator :  # TODO: Cast the type to real if there are no complex component
+class operator :
 
     def __init__(self, data):
         # Store the data
