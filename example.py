@@ -28,16 +28,12 @@ print('u*v = |u><v| = ')
 print(u*v)
 print('')
 
-print('v*v.T() = <v||v†> = ')
+print('v*v.T() = <v||v*> = ')
 print(v*v.T())
 print('')
 
 # Numpy functions work directly with the objects
 print('Testing numpy interaction')
-print('numpy.shape(u)')
-print(numpy.shape(u))
-print('')
-
 print('numpy.shape(v)')
 print(numpy.shape(v))
 print('')
