@@ -8,7 +8,7 @@ import numbers
 class state :
 
     # Class initializer
-    def __init__(self, data) :
+    def __init__(self, data) : # TODO: Cast the type to real if there are no complex component
 
         # Verify that data has the right format
         if isinstance(data, list) :  # In list format, find the inner most list
@@ -16,16 +16,16 @@ class state :
                 data = data[0]
 
             # Store the data as a numpy array (of complex type)
-            self.array = np.array([data], dtype=complex)
+            self.array = np.array(data, dtype=complex)
 
         elif isinstance(data, np.ndarray) : # In numpy array format, reshape to be shape (1,N)
             # Get current shape
             shape = np.shape(data)
 
-            # data is annoying numpy 1-D type
+            # data is numpy 1-D type
             if np.size(shape) == 1 :
                 # Reshape the output to be (1,N)
-                self.array = np.reshape(data,(1,np.size(data))).astype(complex)
+                self.array = data.astype(complex)
 
             # data is 2-D type
             else :
@@ -35,12 +35,8 @@ class state :
                 if dx != 1 :
                     raise Exception('Input must be 1-D. Are you trying to make an operator?')
 
-                # Reshape the output to be (1,N)
-                self.array = np.reshape(data,(1,dy)).astype(complex)
-
-        # If state is 'ket', transpose the array
-        if isinstance(self, ket) :
-            self.array = np.transpose(self.array)
+                # Reshape the output to be of shape (N,)
+                self.array = np.reshape(data,(dy,)).astype(complex)
 
         # Define array interface
         self.__array_interface__ = self.array.__array_interface__
@@ -50,19 +46,21 @@ class state :
     def T(self) :
         if isinstance(self, bra) :
             return ket(np.conj(self.array))
+
         elif isinstance(self, ket) :
             return bra(np.conj(self.array))
+
         else :
             raise NotImplementedError
 
 
     # Define conversion to probability
     def prob(self) :
-        return np.reshape(np.multiply(self.array,self.array),(np.size(self.array),))
+        return np.multiply(self.array,self.array)
 
     # Define conversion to numpy array
-    def asnumpy(self) :
-        return np.reshape(self.array,(np.size(self.array),))
+    def asarray(self) :
+        return self.array
 
 
     # Return a string representation of the data in the state
@@ -71,7 +69,16 @@ class state :
         # Ensure truncated print output
         np.set_printoptions(threshold=10)
 
-        return np.array_str(self.array)
+        # Format based on type
+        if isinstance(self, bra) :
+            # Get horizontally formatted string
+            return np.array_str(self.array)
+
+        elif isinstance(self, ket) :
+            # Get vertically formatted string
+            return np.array_str(np.reshape(self.array,(np.size(self.array),1)))
+        else :
+            NotImplementedError
 
 
     # Define the additiopn operators
@@ -80,7 +87,8 @@ class state :
         # Compare the types
         if type(self) == type(other) :
             # If they have same type, addiion can be made
-            return self.__class__((self.array + other.array)[0])
+            return self.__class__(self.array + other.array)
+
         else :
             # If the have different type, addition is not defined
             raise Exception('Must have same type! Cannot add ket and bra')
@@ -92,7 +100,8 @@ class state :
         # Compare the types
         if type(self) == type(other) :
             # If they have same type, subtraction can be made
-            return self.__class__((self.array - other.array)[0])
+            return self.__class__(self.array - other.array)
+
         else :
             # If the have different type, subtraction is not defined
             raise Exception('Must have same type! Cannot subtract ket and bra')
@@ -102,16 +111,20 @@ class state :
     def __mul__(self, other) :
 
         if type(self) != type(other) :
+
             # If they have different type, multiplication can be made
             if isinstance(self, bra) and isinstance(other, ket):
                 # Compute the inner product
-                return np.dot(self.array, other.array)[0][0]
+                return np.dot(self.array, other.array)
+
             elif isinstance(self, ket) and isinstance(other, bra) :
                 # Compute the outer product
-                return np.outer(self.array, other.array)
+                return operator(np.outer(self.array, other.array))
+
             elif isinstance(self, bra) and isinstance(other, operator) :
                 # Compute the matrix multiplication
                 return bra(np.dot(self.array, other.array))
+
             else :
                 raise NotImplementedError
         else :
@@ -124,19 +137,10 @@ class state :
 
     # Define the index operators
     def __getitem__(self, index) :
-        if isinstance(self, bra) :
-            return self.array[0][index]
-        elif isinstance(self, ket) :
-            return self.array[index][0]
-        else :
-            raise NotImplementedError
+        return self.array[index]
+
     def __setitem__(self, index, value) :
-        if isinstance(self, bra) :
-            self.array[0][index] = value
-        elif isinstance(self, ket) :
-            self.array[index][0] = value
-        else :
-            raise NotImplementedError
+        self.array[index] = value
 
 # Define the bra class
 class bra(state) :
@@ -171,7 +175,7 @@ class ket(state) :
 
 
 # Define the operator class
-class operator :
+class operator :  # TODO: Cast the type to real if there are no complex component
 
     def __init__(self, data):
         # Store the data
@@ -224,13 +228,20 @@ class operator :
         # Compare the types
         if isinstance(other, operator) :
             return operator(self.array + other.array)
+
         else :
             raise NotImplementedError
 
 
     # Define the subtraction operator
     def __sub__(self, other) :
-        raise NotImplementedError
+
+        # Compare the types
+        if isinstance(other, operator) :
+            return operator(self.array - other.array)
+
+        else :
+            raise NotImplementedError
 
 
     # Define the multiplication operator
@@ -240,9 +251,11 @@ class operator :
         if isinstance(other, numbers.Number) :
             # Multiply each element with the scalar
             return operator(self.array * other)
+
         elif isinstance(other, ket) :
             # Compute the matrix multiplication
             return ket(np.dot(self.array, other.array))
+
         else :
             raise NotImplementedError
 
@@ -252,6 +265,7 @@ class operator :
         # Compare the types
         if isinstance(other, numbers.Number) :
             return operator(self.array / other)
+
         else :
             raise NotImplementedError
 
@@ -262,5 +276,6 @@ class operator :
     # Define the index operators
     def __getitem__(self, index) :
         return self.array[index]
+
     def __setitem__(self, index, value) :
         self.array[index] = value
