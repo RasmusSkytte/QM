@@ -10,6 +10,7 @@ class state :
     # Class initializer
     def __init__(self, data) :
 
+        # Store the data
         self.array = data
 
         # Define array interface
@@ -19,9 +20,11 @@ class state :
     # Define the hermitian transpose operator
     def H(self) :
         if isinstance(self, bra) :
+            # bra becomes a ket
             return ket(np.conj(self.array))
 
         elif isinstance(self, ket) :
+            # ket becomes a bra
             return bra(np.conj(self.array))
 
         else :
@@ -30,8 +33,9 @@ class state :
 
     # Define conversion to probability
     def prob(self) :
+        # This function is only defined for a bra or a ket
         if isinstance(self, bra) or isinstance(self, ket) :
-            return np.multiply(self.array,self.array)
+            return np.real(np.multiply(self.array,np.conj(self.array)))
         else :
             raise NotImplementedError
 
@@ -44,7 +48,7 @@ class state :
     def array_str(self) :
 
         # Ensure truncated print output
-        np.set_printoptions(threshold=10)
+        np.set_printoptions(precision=4, threshold=10)
 
         # Format based on type
         if isinstance(self, bra) or isinstance(self, operator) :
@@ -94,7 +98,7 @@ class state :
     # Define the multiplication operator
     def __mul__(self, other) :
 
-        # If they have different type, multiplication can be made
+        # The type of the objects determines how multiplication is done
         if isinstance(self, bra) and isinstance(other, ket):
             # Compute the inner product
             return np.dot(self.array, other.array).item()
@@ -116,7 +120,11 @@ class state :
             return operator(np.dot(self.array, other.array))
 
         elif isinstance(other, numbers.Number) :
-            # If it is just a number, just multiply each value
+            # Treat the zero case on its own
+            if other.value == 0 :
+                return 0
+
+            # Otherwise, just multiply each value
             return self.__class__(self.array * other)
 
         # If the have same type, multiplication is not defined
@@ -234,8 +242,8 @@ class operator(state) :
         w = w[I]
         v = v[:,I]
 
-        # Store the output as a list of bra's
-        v = [bra(u) for u in v.T]
+        # Store the output as a list of kets's
+        v = [ket(u) for u in v.T]
 
         return w, v
 
