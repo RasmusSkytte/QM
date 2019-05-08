@@ -17,7 +17,7 @@ class state :
 
 
     # Define the hermitian transpose operator
-    def T(self) :
+    def H(self) :
         if isinstance(self, bra) :
             return ket(np.conj(self.array))
 

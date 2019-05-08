@@ -28,8 +28,8 @@ print('u*v = |u><v| = ')
 print(u*v)
 print('')
 
-print('v*v.T() = <v||v*> = ')
-print(v*v.T())
+print('v*v.H() = <v||v*> = ')
+print(v*v.H())
 print('')
 
 # Numpy functions work directly with the objects

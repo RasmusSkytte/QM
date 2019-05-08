@@ -27,7 +27,7 @@ assert(prop_associative(x, y, z))
 
 # Test distributive property
 # <x| ( |y> + |z*> ) = <x||y> + <x||z*>
-assert(prop_distributive(x, y, z.T()))
+assert(prop_distributive(x, y, z.H()))
 
 # Test identity property
 # 1 * <x| = <x|
@@ -69,6 +69,6 @@ assert(prop_associative(x, A, y))
 assert(prop_distributive(x, A, B))
 
 # A ( |y> + |z*> ) = A|y> + A|z*>
-assert(prop_distributive(A, y, z.T()))
+assert(prop_distributive(A, y, z.H()))
 
 print('All tests passed')
