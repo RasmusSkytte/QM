@@ -30,7 +30,10 @@ class state :
 
     # Define conversion to probability
     def prob(self) :
-        return np.multiply(self.array,self.array)
+        if isinstance(self, bra) or isinstance(self, ket) :
+            return np.multiply(self.array,self.array)
+        else :
+            raise NotImplementedError
 
     # Define conversion to numpy array
     def asarray(self) :
@@ -44,7 +47,7 @@ class state :
         np.set_printoptions(threshold=10)
 
         # Format based on type
-        if isinstance(self, bra) :
+        if isinstance(self, bra) or isinstance(self, operator) :
             # Get horizontally formatted string
             return np.array_str(self.array)
 
@@ -216,7 +219,7 @@ class ket(state) :
 # Define the operator class
 class operator(state) :
 
-    def __init__(self, data):   # TODO: Add verification of input data
+    def __init__(self, data) :
 
         # Copy the parents information
         return super().__init__(verify_data_format(data, type='operator'))
