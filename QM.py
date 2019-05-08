@@ -10,33 +10,7 @@ class state :
     # Class initializer
     def __init__(self, data) :
 
-        # Verify that data has the right format
-        if isinstance(data, list) :  # In list format, find the inner most list
-            while isinstance(data[0], list) :
-                data = data[0]
-
-            # Store the data as a numpy array
-            self.array = np.array(data)
-
-        elif isinstance(data, np.ndarray) : # In numpy array format, reshape to be shape (1,N)
-            # Get current shape
-            shape = np.shape(data)
-
-            # data is numpy 1-D type
-            if np.size(shape) == 1 :
-                # Reshape the output to be (1,N)
-                self.array = data
-
-            # data is 2-D type
-            else :
-                dx, dy = sorted(shape)
-
-                # Verify input is 1-D
-                if dx != 1 :
-                    raise Exception('Input must be 1-D. Are you trying to make an operator?')
-
-                # Reshape the output to be of shape (N,)
-                self.array = np.reshape(data,(dy,))
+        self.array = data
 
         # Define array interface
         self.__array_interface__ = self.array.__array_interface__
@@ -97,7 +71,6 @@ class state :
             # If the have different type, addition is not defined
             raise Exception('Must have same type! Cannot add ket and bra')
 
-
     # Define the subtraction operator
     def __sub__(self, other) :
 
@@ -118,35 +91,55 @@ class state :
     # Define the multiplication operator
     def __mul__(self, other) :
 
-        if type(self) != type(other) :
+        # If they have different type, multiplication can be made
+        if isinstance(self, bra) and isinstance(other, ket):
+            # Compute the inner product
+            return np.dot(self.array, other.array).item()
 
-            # If they have different type, multiplication can be made
-            if isinstance(self, bra) and isinstance(other, ket):
-                # Compute the inner product
-                return np.dot(self.array, other.array)
+        elif isinstance(self, ket) and isinstance(other, bra) :
+            # Compute the outer product
+            return operator(np.outer(self.array, other.array))
 
-            elif isinstance(self, ket) and isinstance(other, bra) :
-                # Compute the outer product
-                return operator(np.outer(self.array, other.array))
+        elif isinstance(self, bra) and isinstance(other, operator) :
+            # Compute the matrix multiplication
+            return bra(np.dot(self.array, other.array))
 
-            elif isinstance(self, bra) and isinstance(other, operator) :
-                # Compute the matrix multiplication
-                return bra(np.dot(self.array, other.array))
+        elif isinstance(self, operator) and isinstance(other, ket) :
+            # Compute the matrix multiplication
+            return ket(np.dot(self.array, other.array))
 
-            elif isinstance(other, numbers.Number) :
-                # If it is just a number, just multiply each value
-                return self.__class__(self.array * other)
+        elif isinstance(self, operator) and isinstance(other, operator) :
+            # Compute the matrix multiplication
+            return operator(np.dot(self.array, other.array))
 
-            else :
-                raise NotImplementedError
+        elif isinstance(other, numbers.Number) :
+            # If it is just a number, just multiply each value
+            return self.__class__(self.array * other)
+
+        # If the have same type, multiplication is not defined
+        elif isinstance(self, bra) and isinstance(other, bra) :
+            raise Exception('Must have different type! Cannot evaluate <v|<v|')
+        elif isinstance(self, ket) and isinstance(other, ket) :
+            raise Exception('Must have different type! Cannot evaluate |v>|v>')
 
         else :
-            # If the have same type, multiplication is not defined
-            raise Exception('Must have different type! Cannot evaluate <v|<v| or |v>|v>')
+            raise NotImplementedError
+
+    # Define the true division operator
+    def __truediv__(self, other) :
+
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.__class__(self.array / other)
+
+        else :
+            raise NotImplementedError
+
 
     # Define the unary negation operator
     def __neg__(self) :
         return self.__class__(-self.array)
+
 
     # Define the right hand operators (add, sub, and mul)
     def __radd__(self, other) :
@@ -164,9 +157,21 @@ class state :
     def __rmul__(self, other) :
         # Compare the types
         if isinstance(other, numbers.Number) :
-            return self.__class__(self.array * other)
+            if other == 0 : # Check if the number is zero
+                return 0
+
+            else :  # Else multiply each element with the scalar
+                return self.__class__(self.array * other)
         else :
             raise NotImplementedError
+
+    # Define equal opeator
+    def __eq__(self, other):
+        # Compare the types
+        if isinstance(other, self.__class__) and np.all(self.array==other.array) :
+            return True
+        else :
+            return False
 
     # Define the index operators
     def __getitem__(self, index) :
@@ -175,6 +180,7 @@ class state :
     def __setitem__(self, index, value) :
         self.array[index] = value
 
+
 # Define the bra class
 class bra(state) :
 
@@ -182,7 +188,7 @@ class bra(state) :
     def __init__(self, data):
 
         # Copy the parents information
-        return super().__init__(data)
+        return super().__init__(verify_data_format(data))
 
     # Define print string
     def __str__(self):
@@ -198,7 +204,7 @@ class ket(state) :
     def __init__(self, data):
 
         # Copy the parents information
-        return super().__init__(data)
+        return super().__init__(verify_data_format(data))
 
     # Define print string
     def __str__(self):
@@ -208,14 +214,12 @@ class ket(state) :
 
 
 # Define the operator class
-class operator :
+class operator(state) :
 
-    def __init__(self, data):
-        # Store the data
-        self.array = data
+    def __init__(self, data):   # TODO: Add verification of input data
 
-        # Define array interface
-        self.__array_interface__ = self.array.__array_interface__
+        # Copy the parents information
+        return super().__init__(verify_data_format(data, type='operator'))
 
     # Define eigenvalue function
     def eig(self) :
@@ -235,112 +239,48 @@ class operator :
     # Define print string
     def __str__(self):
 
-        # Ensure truncated print output
-        np.set_printoptions(threshold=10)
-
         # Format the output to show ket notation
         return u'O = ' + str.replace(np.array_str(self.array),'\n','\n    ')
 
-    # Define conversion to numpy array
-    def asnumpy(self) :
-        return self.array
 
+# Define function to verify the data inputs
+def verify_data_format(data, type='1D') :
 
-    # Return a string representation of the data in the state
-    def array_str(self) :
+    # Convert lists to numpy arrays
+    if isinstance(data, list) :
+        data = np.array(data)
 
-        # Ensure truncated print output
-        np.set_printoptions(threshold=10)
+    if isinstance(data, np.ndarray) : # In numpy array format, reshape to be shape (N,) or (N,N)
+        # Get current shape
+        shape = np.shape(data)
 
-        return np.array_str(self.array)
+        # data is numpy 1-D type and already the right format
+        if np.size(shape) == 1 :
+            return data
 
+        # data is 2-D type
+        elif np.size(shape) == 2 :
+            dx, dy = sorted(shape)
 
-    # Define the addition operators
-    def __add__(self, other) :
+            # Process 1D data types
+            if type == '1D' :
 
-        # Compare the types
-        if isinstance(other, operator) :
-            return operator(self.array + other.array)
+                # verify data is 1D
+                if dx != 1 :
+                    raise Exception('Input must be 1-D. Are you trying to make an operator?')
 
-        elif isinstance(other, numbers.Number) :
-            # If it is just a number, just add each value
-            return operator(self.array + other)
+                # Reshape the output to be of shape (N,)
+                return np.reshape(data,(dy,))
 
+            elif type == 'operator' :
+
+                # Verify data is a square matrix
+                if dx != dy :
+                    raise Exception('Input must be a square matrix')
+
+                # Reshape the output to be of shape (N,N)
+                return data
+
+        # Data type unknown
         else :
             raise NotImplementedError
-
-
-    # Define the subtraction operator
-    def __sub__(self, other) :
-
-        # Compare the types
-        if isinstance(other, operator) :
-            return operator(self.array - other.array)
-
-        elif isinstance(other, numbers.Number) :
-            # If it is just a number, just subtract each value
-            return operator(self.array - other)
-
-        else :
-            raise NotImplementedError
-
-
-    # Define the multiplication operator
-    def __mul__(self, other) :
-
-        # Compare the types
-        if isinstance(other, numbers.Number) :
-            # Multiply each element with the scalar
-            return operator(self.array * other)
-
-        elif isinstance(other, ket) :
-            # Compute the matrix multiplication
-            return ket(np.dot(self.array, other.array))
-
-        elif isinstance(other, numbers.Number) :
-            # If it is just a number, just multiply each value
-            return operator(self.array * other)
-
-        else :
-            raise NotImplementedError
-
-    # Define the true division operator
-    def __truediv__(self, other) :
-
-        # Compare the types
-        if isinstance(other, numbers.Number) :
-            return operator(self.array / other)
-
-        else :
-            raise NotImplementedError
-
-    # Define the unary negation operator
-    def __neg__(self) :
-        return operator(-self.array)
-
-    # Define the right hand operators (add, sub, and mul)
-    def __radd__(self, other) :
-        # Compare the types
-        if isinstance(other, numbers.Number) :
-            return operator(self.array + other)
-        else :
-            raise NotImplementedError
-    def __rsub__(self, other) :
-        # Compare the types
-        if isinstance(other, numbers.Number) :
-            return operator(self.array - other)
-        else :
-            raise NotImplementedError
-    def __rmul__(self, other) :
-        # Compare the types
-        if isinstance(other, numbers.Number) :
-            return operator(self.array * other)
-        else :
-            raise NotImplementedError
-
-    # Define the index operators
-    def __getitem__(self, index) :
-        return self.array[index]
-
-    def __setitem__(self, index, value) :
-        self.array[index] = value
