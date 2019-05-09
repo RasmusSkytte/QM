@@ -17,6 +17,23 @@ class state :
         self.__array_interface__ = self.array.__array_interface__
 
 
+    # Define the transpose operator
+    def T(self) :
+        if isinstance(self, bra) :
+            # bra becomes a ket
+            return ket(self.array)
+
+        elif isinstance(self, ket) :
+            # ket becomes a bra
+            return bra(self.array)
+
+        elif isinstance(self, operator) :
+            # Operator stays operator
+            return operator(self.array.T)
+
+        else :
+            raise NotImplementedError
+
     # Define the hermitian transpose operator
     def H(self) :
         if isinstance(self, bra) :
@@ -26,6 +43,10 @@ class state :
         elif isinstance(self, ket) :
             # ket becomes a bra
             return bra(np.conj(self.array))
+
+        elif isinstance(self, operator) :
+            # Operator stays operator
+            return operator(np.conj(self.array.T))
 
         else :
             raise NotImplementedError
@@ -329,3 +350,11 @@ def verify_data_format(data, type='1D') :
         # Data type unknown
         else :
             raise NotImplementedError
+
+# Define a few useful quantities
+c           = 299792458         # [m / s]   Speed of light
+h           = 6.62606896e-34    # [J]       Planck Constant
+hbar        = 1.054571628e-34   # [J]       Planck Constant / 2 pi (Diracs constant)
+eV          = 1.602176565e-19   # [J]       Electron Volt
+m_electron  = 9.10938356e-31    # [kg]      Mass of electron
+pi          = np.pi             #           Pi
