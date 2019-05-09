@@ -99,7 +99,7 @@ class state :
     def __mul__(self, other) :
 
         # The type of the objects determines how multiplication is done
-        if isinstance(self, bra) and isinstance(other, ket):
+        if isinstance(self, bra) and isinstance(other, ket) :
             # Compute the inner product
             return np.dot(self.array, other.array).item()
 
@@ -177,12 +177,46 @@ class state :
             raise NotImplementedError
 
     # Define equal opeator
-    def __eq__(self, other):
+    def __eq__(self, other) :
         # Compare the types
         if isinstance(other, self.__class__) and np.all(self.array==other.array) :
             return True
+        elif isinstance(other, numbers.Number) :
+            return self.array == other
         else :
-            return False
+            raise NotImplementedError
+
+    # Define less than operator
+    def __lt__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.array < other
+        else :
+            raise NotImplementedError
+
+    # Define less than or equal operator
+    def __le__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.array <= other
+        else :
+            raise NotImplementedError
+
+    # Define greater than operator
+    def __gt__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.array > other
+        else :
+            raise NotImplementedError
+
+    # Define greater than or equal operator
+    def __ge__(self, other) :
+        # Compare the types
+        if isinstance(other, numbers.Number) :
+            return self.array >= other
+        else :
+            raise NotImplementedError
 
     # Define the index operators
     def __getitem__(self, index) :
@@ -196,13 +230,13 @@ class state :
 class bra(state) :
 
     # Class initializer
-    def __init__(self, data):
+    def __init__(self, data) :
 
         # Copy the parents information
         return super().__init__(verify_data_format(data))
 
     # Define print string
-    def __str__(self):
+    def __str__(self) :
 
         # Format the output to show bra notation
         return '<v| = ' + self.array_str()
@@ -212,13 +246,13 @@ class bra(state) :
 class ket(state) :
 
     # Class initializer
-    def __init__(self, data):
+    def __init__(self, data) :
 
         # Copy the parents information
         return super().__init__(verify_data_format(data))
 
     # Define print string
-    def __str__(self):
+    def __str__(self) :
 
         # Format the output to show ket notation
         return '|v> = ' + str.replace(self.array_str(),'\n','\n      ')
@@ -248,7 +282,7 @@ class operator(state) :
         return w, v
 
     # Define print string
-    def __str__(self):
+    def __str__(self) :
 
         # Format the output to show ket notation
         return u'O = ' + str.replace(np.array_str(self.array),'\n','\n    ')
