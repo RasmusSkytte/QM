@@ -3,6 +3,7 @@
 # Use numpy as backend for storing data
 import numpy as np
 import numbers
+import os
 
 # Define the state class
 class state :
@@ -50,7 +51,6 @@ class state :
 
         else :
             raise NotImplementedError
-
 
     # Define conversion to probability
     def prob(self) :
@@ -141,10 +141,6 @@ class state :
             return operator(np.dot(self.array, other.array))
 
         elif isinstance(other, numbers.Number) :
-            # Treat the zero case on its own
-            if other.value == 0 :
-                return 0
-
             # Otherwise, just multiply each value
             return self.__class__(self.array * other)
 
@@ -246,6 +242,14 @@ class state :
     def __setitem__(self, index, value) :
         self.array[index] = value
 
+    # Define representation
+    def __repr__(self):
+        if isinstance(self, bra) or isinstance(self, ket) :
+            return self.__name__() + '(' + np.array_str(self.array) + ')'
+        elif isinstance(self, operator) :
+            return self.__name__() + '(' +str.replace(np.array_str(self.array),'\n','\n         ') + ')'
+        else :
+            raise NotImplementedError
 
 # Define the bra class
 class bra(state) :
@@ -262,6 +266,9 @@ class bra(state) :
         # Format the output to show bra notation
         return '<v| = ' + self.array_str()
 
+    # Define name
+    def __name__(self) :
+        return 'bra'
 
 # Define the ket class
 class ket(state) :
@@ -278,6 +285,9 @@ class ket(state) :
         # Format the output to show ket notation
         return '|v> = ' + str.replace(self.array_str(),'\n','\n      ')
 
+    # Define name
+    def __name__(self) :
+        return 'ket'
 
 # Define the operator class
 class operator(state) :
@@ -308,6 +318,9 @@ class operator(state) :
         # Format the output to show ket notation
         return u'O = ' + str.replace(np.array_str(self.array),'\n','\n    ')
 
+    # Define name
+    def __name__(self) :
+        return 'operator'
 
 # Define function to verify the data inputs
 def verify_data_format(data, type='1D') :
@@ -350,6 +363,20 @@ def verify_data_format(data, type='1D') :
         # Data type unknown
         else :
             raise NotImplementedError
+
+# Define video writer function
+def make_video(fmtstr, framerate=30) :
+    # fmtstr includes information of where the images are stored and how they are named
+    # e.g. fmtstr = 'video/%3d.png'
+
+    # Generate an output path
+    outputpath = 'video/video.mp4'
+
+    # Check that ffmpeg is installed
+    try :
+        os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s' % (framerate, fmtstr, outputpath))
+    except:
+        raise Exception('Could not find ffmpeg. Are you sure it is installed?')
 
 # Define a few useful quantities
 c           = 299792458         # [m / s]   Speed of light
