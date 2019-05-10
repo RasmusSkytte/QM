@@ -71,4 +71,13 @@ assert(prop_distributive(x, A, B))
 # A ( |y> + |z*> ) = A|y> + A|z*>
 assert(prop_distributive(A, y, z.H()))
 
+# Few more tests ####################################################
+x *= 2
+y += 3
+z -= x
+a = z*0
+b = 0*z
+A += B
+A *= 2
+
 print('All tests passed')
