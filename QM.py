@@ -322,6 +322,13 @@ class operator(state) :
     def __name__(self) :
         return 'operator'
 
+    # Overwrite the index operators
+    def __getitem__(self, index) :
+        if isinstance(index, tuple) :
+            return self.array[index]
+        else :
+            return bra(self.array[index])
+
 # Define function to verify the data inputs
 def verify_data_format(data, type='1D') :
 
