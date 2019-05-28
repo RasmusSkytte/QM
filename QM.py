@@ -17,8 +17,25 @@ class state :
         # Define array interface
         self.__array_interface__ = self.array.__array_interface__
 
+        # Implementing the numpy attributes
+        self.data     = self.array.data       # Python buffer object pointing to the start of the array’s data.
+        self.dtype    = self.array.dtype      # Data-type of the array’s elements.
+        self.flags    = self.array.flags      # flags 	Information about the memory layout of the array.
+        self.flat     = self.array.flat       # A 1-D iterator over the array.
+        self.imag     = self.array.imag       # The imaginary part of the array.
+        self.real     = self.array.real       # The real part of the array.
+        self.size     = self.array.size       # Number of elements in the array.
+        self.itemsize = self.array.itemsize   # Length of one array element in bytes.
+        self.nbytes   = self.array.nbytes     # Total bytes consumed by the elements of the array.
+        self.ndim     = self.array.ndim 	  # Number of array dimensions.
+        self.shape    = self.array.shape 	  # Tuple of array dimensions.
+        self.strides  = self.array.strides    # Tuple of bytes to step in each dimension when traversing an array.
+        self.ctypes   = self.array.ctypes     # An object to simplify the interaction of the array with the ctypes module.
+        self.base     = self.array.base 	  # Base object if memory is from some other object.
+
 
     # Define the transpose operator
+    @property
     def T(self) :
         if isinstance(self, bra) :
             # bra becomes a ket
@@ -36,6 +53,7 @@ class state :
             raise NotImplementedError
 
     # Define the hermitian transpose operator
+    @property
     def H(self) :
         if isinstance(self, bra) :
             # bra becomes a ket
@@ -60,10 +78,88 @@ class state :
         else :
             raise NotImplementedError
 
-    # Define conversion to numpy array
-    def asarray(self) :
-        return self.array
+    # Define the numpy methods (commented methods can be implemented in the future)
+    def all(self, *args, **kwargs) :                    # 	Returns True if all elements evaluate to True.
+        return self.array.all(*args, **kwargs)
+    def any(self, *args, **kwargs) :                    # 	Returns True if any of the elements of a evaluate to True.
+        return self.array.any(*args, **kwargs)
+    def argmax(self, *args, **kwargs) :                 # 	Return indices of the maximum values along the given axis.
+        return self.array.argmax(*args, **kwargs)
+    def argmin(self, *args, **kwargs) :                 # 	Return indices of the minimum values along the given axis of a.
+        return self.array.argmin(*args, **kwargs)
+    # def argpartition(self, kth, *args) :              # 	Returns the indices that would partition this array.
 
+    def argsort(self, *args, **kwargs) :                # 	Returns the indices that would sort this array.
+        return self.array.argsort(*args, **kwargs)
+    def astype(self, dtype, *args, **kwargs) :          # 	Copy of the array, cast to a specified type.
+        return self.array.astype(dtype, *args, **kwargs)
+    # def byteswap(self, *args) :                       # 	Swap the bytes of the array elements
+    # def choose(self, choices, *args) :                # 	Use an index array to construct a new array from a set of choices.
+    # def clip(self, *args) :                           # 	Return an array whose values are limited to [min, max].
+    # def compress(self, condition, *args) :            # 	Return selected slices of this array along given axis.
+    def conj(self) :                                    # 	Complex-conjugate all elements.
+        return self.array.conj()
+    def conjugate(self) :                               # 	Return the complex conjugate, element-wise.
+        return self.array.conjugate()
+    def cumprod(self, *args, **kwargs) :                # 	Return the cumulative product of the elements along the given axis.
+        return self.array.cumprod(*args, **kwargs)
+    def cumsum(self, *args, **kwargs) :                 # 	Return the cumulative sum of the elements along the given axis.
+        return self.array.cumsum(*args, **kwargs)
+    # def diagonal(self, *args) :                       # 	Return specified diagonals.
+    # def dot(b[, out]) :                               # 	Dot product of two arrays.
+    # def dump(file) :                                  # 	Dump a pickle of the array to the specified file.
+    # def dumps() :                                     # 	Returns the pickle of the array as a string.
+    # def fill(value) :                                 # 	Fill the array with a scalar value.
+    # def flatten(self, *args) :                        # 	Return a copy of the array collapsed into one dimension.
+    # def getfield(dtype[, offset]) :                   # 	Returns a field of the given array as a certain type.
+    # def item(*args) :                                 # 	Copy an element of an array to a standard Python scalar and return it.
+    # def itemset(*args) :                              # 	Insert scalar into an array (scalar is cast to array’s dtype, if possible)
+    def max(self, *args, **kwargs) :                    # 	Return the maximum along a given axis.
+        return self.array.max(*args, **kwargs)
+    def mean(self, *args, **kwargs) :                   # 	Returns the average of the array elements along given axis.
+        return self.array.mean(*args, **kwargs)
+    def min(self, *args, **kwargs) :                    # 	Return the minimum along a given axis.
+        return self.array.min(*args, **kwargs)
+    # def newbyteorder(self, *args) :                   # 	Return the array with the same data viewed with a different byte order.
+    # def nonzero() :                                   # 	Return the indices of the elements that are non-zero.
+    # def partition(kth[, axis, kind, order]) :         # 	Rearranges the elements in the array in such a way that value of the element in kth position is in the position it would be in a sorted array.
+    def prod(self, *args, **kwargs) :                   # 	Return the product of the array elements over the given axis
+        return self.array.prod(*args, **kwargs)
+    # def ptp(self, *args) :                            # 	Peak to peak (maximum - minimum) value along a given axis.
+    # def put(indices, values[, mode]) :                # 	Set a.flat[n] = values[n] for all n in indices.
+    # def ravel(self, *args) :                          # 	Return a flattened array.
+    # def repeat(repeats[, axis]) :                     # 	Repeat elements of an array.
+    # def reshape(shape[, order]) :                     # 	Returns an array containing the same data with a new shape.
+    # def resize(new_shape[, refcheck]) :               # 	Change shape and size of array in-place.
+    def round(self, *args, **kwargs) :                  # 	Return a with each element rounded to the given number of decimals.
+        return self.array.round(*args, **kwargs)
+    # def searchsorted(v[, side, sorter]) :             # 	Find indices where elements of v should be inserted in a to maintain order.
+    # def setfield(val, dtype[, offset]) :              # 	Put a value into a specified place in a field defined by a data-type.
+    # def setflags(self, *args) :                       # 	Set array flags WRITEABLE, ALIGNED, (WRITEBACKIFCOPY and UPDATEIFCOPY), respectively.
+    def sort(self, *args, **kwargs) :                   # 	Sort an array, in-place.
+        self.array.sort(*args, **kwargs)
+    # def squeeze(self, *args) :                        # 	Remove single-dimensional entries from the shape of a.
+    def std(self, *args, **kwargs) :                    # 	Returns the standard deviation of the array elements along given axis.
+        return self.array.std(*args, **kwargs)          #   TODO: Implement the non-biased standard deviation as default
+    def sum(self, *args, **kwargs) :                    # 	Return the sum of the array elements over the given axis.
+        return self.array.sum(*args, **kwargs)
+    # def swapaxes(axis1, axis2) :                      # 	Return a view of the array with axis1 and axis2 interchanged.
+    # def take(indices[, axis, out, mode]) :            # 	Return an array formed from the elements of a at the given indices.
+    # def tobytes(self, *args) :                        # 	Construct Python bytes containing the raw data bytes in the array.
+    # def tofile(fid[, sep, format]) :                  # 	Write array to a file as text or binary (default).
+    def tolist(self) :                                  # 	Return the array as a (possibly nested) list.
+        return self.array.tolist()
+    # def tostring(self, *args) :                       # 	Construct Python bytes containing the raw data bytes in the array.
+    def trace(self, *args, **kwargs) :                  # 	Return the sum along diagonals of the array.
+        if isinstance(self, operator) :
+            return self.array.trace(*args, **kwargs)
+        else :
+            return NotImplementedError
+    def transpose(self, *axes) :                        # 	Returns a view of the array with axes transposed.
+        return self.T
+    def var(self, *args, **kwargs) :                    # 	Returns the variance of the array elements, along given axis.
+        return self.array.var(*args, **kwargs)          #   TODO: Implement the non-biased standard deviation as default
+    # def view(self, *args) :                           # 	New view of array with the same data.
 
     # Return a string representation of the data in the state
     def array_str(self) :
@@ -83,12 +179,12 @@ class state :
             NotImplementedError
 
 
-    # Define the additiopn operators
+    # Define the addition operators
     def __add__(self, other) :
 
         # Compare the types
         if type(self) == type(other) :
-            # If they have same type, addiion can be made
+            # If they have same type, addition can be made
             return self.__class__(self.array + other.array)
 
         elif isinstance(other, numbers.Number) :
@@ -193,13 +289,15 @@ class state :
         else :
             raise NotImplementedError
 
-    # Define equal opeator
+    # Define equal operator
     def __eq__(self, other) :
         # Compare the types
         if isinstance(other, self.__class__) and np.all(self.array==other.array) :
             return True
         elif isinstance(other, numbers.Number) :
             return self.array == other
+        elif isinstance(other, list) :
+            return [a==b for a, b in zip(self, other)]
         else :
             raise NotImplementedError
 
@@ -308,7 +406,7 @@ class operator(state) :
         v = v[:,I]
 
         # Store the output as a list of kets's
-        v = [ket(u) for u in v.T]
+        v = operator(v.T)
 
         return w, v
 
@@ -341,7 +439,7 @@ def verify_data_format(data, type='1D') :
         shape = np.shape(data)
 
         # data is numpy 1-D type and already the right format
-        if np.size(shape) == 1 :
+        if np.size(shape) == 1 and type == '1D':
             return data
 
         # data is 2-D type
@@ -366,6 +464,10 @@ def verify_data_format(data, type='1D') :
 
                 # Reshape the output to be of shape (N,N)
                 return data
+
+            # Type not recognized
+            else :
+                raise NotImplementedError
 
         # Data type unknown
         else :
