@@ -32,6 +32,17 @@ print('v*v.H = <v||v*> = ')
 print(v*v.H)
 print('')
 
+print('|u|^2 = ')
+print(u.prob())
+print('')
+
+A = u*v
+print('eig(|u><v|) = ')
+l,m = A.eig()
+print(l)
+print(m)
+print('')
+
 # Numpy functions work directly with the objects
 print('Testing numpy interaction')
 print('numpy.shape(v)')

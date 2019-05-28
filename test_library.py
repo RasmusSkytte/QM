@@ -2,16 +2,16 @@
 import numpy as np
 
 def prop_associative(x, y, z) :
-    return (x * y) * z == x * (y * z)
+    return np.all((x * y) * z == x * (y * z))
 
 def prop_distributive(x, y, z) :
-    return x * (y + z) == (x * y) + (x * z)
+    return np.all(x * (y + z) == (x * y) + (x * z))
 
 def prop_identity(x) :
-    return (1 * x) == x
+    return np.all((1 * x) == x)
 
 def prop_zero(x) :
-    return (0 * x) == 0
+    return np.all((0 * x) == 0)
 
 
 import QM as q
@@ -80,6 +80,16 @@ a = z*0
 b = 0*z
 A += B
 A *= 2
+A = A/2
+A = -A
+
+# Testing internal functions ########################################
+
+# .prob()
+assert(np.all(q.bra([1,2,3,4]).prob()==[1, 4, 9, 16]))
+
+# indexing
+assert(isinstance(B[0], q.bra))
 
 # Numpy function testing ############################################
 # .all()
