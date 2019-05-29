@@ -11,19 +11,21 @@ python setup.py install
 import QM as q
 
 # bra <v| = [1, 5, 2]
-v = q.bra([1,5,2])
+v = q.bra([1, 5, 2])
 
-# bra |w> = [9, 0, 5]
-w = q.ket([9,0,5])
+# ket |w> = [9, 0, 5]
+w = q.ket([9, 0, 5])
 
-# Operator M = [[7, 3, 0], [2, 7, 3], [8, 4, 5]]
+# Operator M = [7, 3, 0]
+#              |2, 7, 3|
+#              [8, 4, 5]
 M = q.operator([[7, 3, 0], [2, 7, 3], [8, 4, 5]])
 
 # <v|w>
 a = v * w
 
 # <v|v*>
-b = v * v.H()
+b = v * v.H
 
 # <v|M|w>
 c = v * M * w
@@ -34,5 +36,4 @@ This library introduces three classes ```bra```, ```ket``` and ```operator```.
 All of three objects are array-like:
 ```bra```, ```ket``` are vector-like, while ```operator``` is matrix-like.
 
-Since the classes are array-like, they all work with numpy functions. (e.g. np.shape(), np.linalg.norm())
-
+The classes are subclasses of numpy.ndarray, and they work with numpy functions. (e.g. np.shape(), np.linalg.norm())
