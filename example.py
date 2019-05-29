@@ -38,9 +38,10 @@ print('')
 
 A = u*v
 print('eig(|u><v|) = ')
-l, m = A.eig()
+l, U = A.eig()
 print(l)
-print(m)
+print(U)
+print(U[1])
 print('')
 
 # Numpy functions work directly with the objects
@@ -52,3 +53,6 @@ print('')
 print('numpy.linalg.norm(u)')
 print(numpy.linalg.norm(u))
 print('')
+
+print('The diagonal of |u><v|:')
+print(numpy.diag(A))

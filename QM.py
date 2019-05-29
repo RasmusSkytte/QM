@@ -6,19 +6,11 @@ import numbers
 import os
 
 # Define the state class
-
-
 class state(np.ndarray):
 
     # Class initializers
     def __new__(cls, input_array):
         return np.asarray(input_array).view(cls)
-
-    def __init__(self, input_array):
-        return None
-
-    def __array_finalize__(self, obj):
-        return None
 
     # Define the transpose operator
     @property
@@ -38,7 +30,7 @@ class state(np.ndarray):
         else:
             raise NotImplementedError
 
-    def transpose(self):
+    def transpose(self, *args, **kwargs):
         return self.T
 
     # Define the hermitian transpose operator
@@ -63,9 +55,17 @@ class state(np.ndarray):
     def prob(self):
         # This function is only defined for a bra or a ket
         if isinstance(self, bra) or isinstance(self, ket):
-            return np.real(np.multiply(self, np.conj(self)))
+            return np.real(np.multiply(self, np.conj(self))).view(np.ndarray)
         else:
             raise NotImplementedError
+
+    # Overload the np.sum function
+    def sum(self, *args, **kwargs):
+        return np.sum(np.array(self))
+
+    # Overload the np.diagonal function
+    def diagonal(self, offset=None, axis1=None, axis2=None):
+        return np.diagonal(np.array(self), offset, axis1, axis2)
 
     # Return a string representation of the data in the state
     def array_str(self):
@@ -112,9 +112,17 @@ class state(np.ndarray):
             # If it is just a number, just subtract each value
             return super().__sub__(other)
 
-        else:
-            # If the have different type, subtraction is not defined
+        elif isinstance(self, (bra, ket)) and isinstance(other, (bra, ket)):
+            # If the have different type (bra vs ket), subtraction is not defined
             raise Exception('Must have same type! Cannot subtract ket and bra')
+
+        elif isinstance(self, (bra, ket, operator)) and isinstance(other, (bra, ket, operator)):
+            # If the have different type (bra/ket vs operator), subtraction is not defined
+            raise Exception('Must have same type! Cannot subtract ket/bra and operator')
+
+        else:
+            # Unknown types
+            raise NotImplementedError
 
     # Define the multiplication operator
     def __mul__(self, other):
@@ -165,8 +173,6 @@ class state(np.ndarray):
             raise NotImplementedError
 
 # Define the bra class
-
-
 class bra(state):
 
     # Class initializer
@@ -184,8 +190,6 @@ class bra(state):
         return 'bra'
 
 # Define the ket class
-
-
 class ket(state):
 
     # Class initializer
@@ -203,8 +207,6 @@ class ket(state):
         return 'ket'
 
 # Define the operator class
-
-
 class operator(state):
 
     def __new__(self, data):
@@ -243,8 +245,6 @@ class operator(state):
             return bra(super().__getitem__(index))
 
 # Define function to verify the data inputs
-
-
 def verify_data_format(data, dim='1D'):
 
     # Convert lists to numpy arrays
@@ -293,8 +293,6 @@ def verify_data_format(data, dim='1D'):
             raise NotImplementedError
 
 # Define video writer function
-
-
 def make_video(fmtstr, framerate=30):
     # fmtstr includes information of where the images are stored and how they are named
     # e.g. fmtstr = 'video/%3d.png'

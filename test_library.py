@@ -170,4 +170,26 @@ assert(isinstance(q.bra([1, 3, 5]).transpose(), q.ket))
 # .var()
 assert(q.bra([2, 4, 6]).var(ddof=1) == 4)
 
+# Interaction with external numpy functions #########################
+
+# np.sum()
+assert(np.sum(q.bra([1,2,3])) == 6)
+assert(isinstance(np.sum(q.bra([1,2,3])), np.int64))
+
+# np.conj()
+assert(all(np.conj(q.bra([1,2,3])) == q.bra([1,2,3])))
+assert(isinstance(np.conj(q.bra([1,2,3])), q.bra))
+
+# np.transpose()
+assert(all(np.transpose(q.bra([1,2,3])) == q.ket([1,2,3])))
+assert(isinstance(np.transpose(q.bra([1,2,3])), q.ket))
+
+# np.diagonal()
+assert(all(np.diagonal(q.ket([1,2,3])*q.bra([1,2,3])) == np.array([1,4,9])))
+assert(isinstance(np.diagonal(q.ket([1,2,3])*q.bra([1,2,3])), np.ndarray))
+
+# np.diag()
+assert(all(np.diag(q.ket([1,2,3])*q.bra([1,2,3])) == np.array([1,4,9])))
+assert(isinstance(np.diag(q.ket([1,2,3])*q.bra([1,2,3])), np.ndarray))
+
 print('All tests passed')
