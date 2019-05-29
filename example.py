@@ -4,11 +4,11 @@ import QM as q
 import numpy
 
 # Create a bra and a ket using lists
-v = q.bra([1,2,3,4])
-u = q.ket([4,1,2,9])
+v = q.bra([1, 2, 3, 4])
+u = q.ket([4, 1, 2, 9])
 
 # You can also create bra and ket using numpy arrays
-w = q.bra(numpy.array([1,2,3,4]))
+w = q.bra(numpy.array([1, 2, 3, 4]))
 
 # Use print to see the new output
 print('print() on a bra outputs:')
@@ -38,7 +38,7 @@ print('')
 
 A = u*v
 print('eig(|u><v|) = ')
-l,m = A.eig()
+l, m = A.eig()
 print(l)
 print(m)
 print('')

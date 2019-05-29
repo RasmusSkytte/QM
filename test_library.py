@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
+import QM as q
 import numpy as np
 
-def prop_associative(x, y, z) :
+
+def prop_associative(x, y, z):
     return np.all((x * y) * z == x * (y * z))
 
-def prop_distributive(x, y, z) :
+
+def prop_distributive(x, y, z):
     return np.all(x * (y + z) == (x * y) + (x * z))
 
-def prop_identity(x) :
+
+def prop_identity(x):
     return np.all((1 * x) == x)
 
-def prop_zero(x) :
+
+def prop_zero(x):
     return np.all((0 * x) == 0)
 
 
-import QM as q
-
-
 # Test the bra and ket class ########################################
-x = q.bra([1,3,5])    # <x|
-y = q.ket([4,7,2])    # |y>
-z = q.bra([8,4,1])    # <z|
+x = q.bra([1, 3, 5])    # <x|
+y = q.ket([4, 7, 2])    # |y>
+z = q.bra([8, 4, 1])    # <z|
 
 # Test the associative property
 # ( <x||y> ) <z| = <x| ( |y><z| )
@@ -39,9 +41,9 @@ assert(prop_identity(x))
 assert(prop_zero(x))
 
 # Test the operator class ###########################################
-A = q.operator([[1,3,5],[2,4,7],[2,9,8]])
-B = q.operator([[6,3,9],[0,7,2],[1,9,3]])
-C = q.operator([[3,6,2],[8,0,4],[6,8,2]])
+A = q.operator([[1, 3, 5], [2, 4, 7], [2, 9, 8]])
+B = q.operator([[6, 3, 9], [0, 7, 2], [1, 9, 3]])
+C = q.operator([[3, 6, 2], [8, 0, 4], [6, 8, 2]])
 
 # Test the associative property
 # (AB) C = A (B*C)
@@ -86,86 +88,86 @@ A = -A
 # Testing internal functions ########################################
 
 # .prob()
-assert(np.all(q.bra([1,2,3,4]).prob()==[1, 4, 9, 16]))
+assert(np.all(q.bra([1, 2, 3, 4]).prob() == [1, 4, 9, 16]))
 
 # indexing
 assert(isinstance(B[0], q.bra))
 
 # Numpy function testing ############################################
 # .all()
-assert(q.bra([1,1,1,1]).all())
-assert(not q.bra([1,1,0,1]).all())
+assert(q.bra([1, 1, 1, 1]).all())
+assert(not q.bra([1, 1, 0, 1]).all())
 
 # .any()
-assert(q.bra([1,1,1,1]).any())
-assert(q.bra([1,1,0,1]).any())
-assert(not q.bra([0,0,0,0]).any())
+assert(q.bra([1, 1, 1, 1]).any())
+assert(q.bra([1, 1, 0, 1]).any())
+assert(not q.bra([0, 0, 0, 0]).any())
 
 # .argmax()
-assert(q.bra([1,5,2,3]).argmax()==1)
+assert(q.bra([1, 5, 2, 3]).argmax() == 1)
 
 # .argmin()
-assert(q.bra([1,5,2,3]).argmin()==0)
+assert(q.bra([1, 5, 2, 3]).argmin() == 0)
 
 # .argsort()
-assert(np.all(q.bra([1,5,2,3]).argsort() == [0, 2, 3, 1]))
+assert(np.all(q.bra([1, 5, 2, 3]).argsort() == [0, 2, 3, 1]))
 
 # .astype()
-b = q.bra([1,2,3,5])
-assert(isinstance(b[0],np.int64))
+b = q.bra([1, 2, 3, 5])
+assert(isinstance(b[0], np.int64))
 b = b.astype(complex)
-assert(isinstance(b[0],complex))
+assert(isinstance(b[0], complex))
 
 # .conj()
-b = q.bra([1+1j,2,3,5]).conj()
-assert(b[0]==(1-1j))
+b = q.bra([1+1j, 2, 3, 5]).conj()
+assert(b[0] == (1-1j))
 
 # .conjugate()
-b = q.bra([1+1j,2,3,5]).conjugate()
-assert(b[0]==(1-1j))
+b = q.bra([1+1j, 2, 3, 5]).conjugate()
+assert(b[0] == (1-1j))
 
 # .cumprod()
-assert(np.all(q.ket([1,2,3]).cumprod()==[1,2,6]))
+assert(np.all(q.ket([1, 2, 3]).cumprod() == [1, 2, 6]))
 
 # .cumsum()
-assert(np.all(q.ket([1,2,3]).cumsum()==[1,3,6]))
+assert(np.all(q.ket([1, 2, 3]).cumsum() == [1, 3, 6]))
 
 # .max()
-assert(q.ket([1,2,3]).max()==3)
+assert(q.ket([1, 2, 3]).max() == 3)
 
 # .mean()
-assert(q.ket([1,2,3]).mean()==2)
+assert(q.ket([1, 2, 3]).mean() == 2)
 
 # .mean()
-assert(q.ket([1,2,3]).min()==1)
+assert(q.ket([1, 2, 3]).min() == 1)
 
 # .prod()
-assert(q.ket([1,2,3]).prod()==6)
+assert(q.ket([1, 2, 3]).prod() == 6)
 
 # .round()
-assert(np.all(q.bra([1.4, 2.7, 3.5]).round()==[1,3,4]))
+assert(np.all(q.bra([1.4, 2.7, 3.5]).round() == [1, 3, 4]))
 
 # .sort()
 b = q.bra([1.5, 3.5, 3.2])
 b.sort()
-assert(np.all(b==[1.5,3.2,3.5]))
+assert(np.all(b == [1.5, 3.2, 3.5]))
 
 # .std()
-assert(q.bra([2, 4, 6]).std(ddof=1)==2)
+assert(q.bra([2, 4, 6]).std(ddof=1) == 2)
 
 # .sum()
-assert(q.bra([2, 4, 6]).sum()==12)
+assert(q.bra([2, 4, 6]).sum() == 12)
 
 # .tolist()
-assert(isinstance(q.bra([2, 4, 6]).tolist(),list))
+assert(isinstance(q.bra([2, 4, 6]).tolist(), list))
 
 # .trace()
-assert(q.operator([[2,5,8],[5,0,9],[3,1,9]]).trace()==11)
+assert(q.operator([[2, 5, 8], [5, 0, 9], [3, 1, 9]]).trace() == 11)
 
 # .transpose()
-assert(isinstance(q.bra([1,3,5]).transpose(),q.ket))
+assert(isinstance(q.bra([1, 3, 5]).transpose(), q.ket))
 
 # .var()
-assert(q.bra([2, 4, 6]).var(ddof=1)==4)
+assert(q.bra([2, 4, 6]).var(ddof=1) == 4)
 
 print('All tests passed')
