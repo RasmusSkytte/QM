@@ -298,20 +298,21 @@ def make_video(fmtstr, framerate=30):
     # e.g. fmtstr = 'video/%3d.png'
 
     # Generate an output path
-    outputpath = 'video/video.mp4'
+    outputpath = fmtstr.split('/')
+    outputpath[-1] = 'video.mp4'
+    outputpath = '/'.join(outputpath)
 
-    # Check that ffmpeg is installed
-    try:
-        os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s' %
-                  (framerate, fmtstr, outputpath))
-    except:
-        raise Exception('Could not find ffmpeg. Are you sure it is installed?')
+    # Check that ffmpeg is installe
+    f = os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s' % (framerate, fmtstr, outputpath))
+
+    if f != 0:
+        raise Exception('Could not use ffmpeg. Are you sure it is installed?')
 
 
 # Define a few useful quantities
-c = 299792458         # [m / s]   Speed of light
-h = 6.62606896e-34    # [J]       Planck Constant
-hbar = 1.054571628e-34   # [J]       Planck Constant / 2 pi (Diracs constant)
-eV = 1.602176565e-19   # [J]       Electron Volt
-m_electron = 9.10938356e-31    # [kg]      Mass of electron
-pi = np.pi  # Pi
+c = 299792458                   # [m / s]   Speed of light
+h = 6.62606896e-34              # [J]       Planck Constant
+hbar = 1.054571628e-34          # [J]       Planck Constant / 2 pi (Diracs constant)
+eV = 1.602176565e-19            # [J]       Electron Volt
+m_electron = 9.10938356e-31     # [kg]      Mass of electron
+pi = np.pi                      # Pi
