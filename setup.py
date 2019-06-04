@@ -12,6 +12,6 @@ setup(
     long_description=long_description,
     author='Rasmus Skytte Eriksen',
     author_email='rasmus.eriksen@nbi.ku.dk',
-    packages=['QM'],
+    packages=[''],
     install_requires=['numpy'], #external packages as dependencies
 )
