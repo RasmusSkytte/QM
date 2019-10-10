@@ -79,17 +79,14 @@ class state(np.ndarray):
     # Return a string representation of the data in the state
     def array_str(self):
 
-        # Ensure truncated print output
-        np.set_printoptions(precision=4, threshold=10)
-
         # Format based on type
         if isinstance(self, bra) or isinstance(self, operator):
             # Get horizontally formatted string
-            return np.array_str(self)
+            return np.array_str(self, precision=4, suppress_small=True)
 
         elif isinstance(self, ket):
             # Get vertically formatted string
-            return np.array_str(np.reshape(self, (self.size, 1)))
+            return np.array_str(np.reshape(self, (self.size, 1)), precision=4, suppress_small=True)
         else:
             NotImplementedError
 
@@ -173,11 +170,11 @@ class state(np.ndarray):
     # Define representation
     def __repr__(self):
         if isinstance(self, bra) or isinstance(self, ket):
-            return self.__name__() + '(' + np.array_str(self) + ')'
+            return self.__name__() + '(' + np.array_str(self, precision=4, suppress_small=True) + ')'
         elif isinstance(self, operator):
-            return self.__name__() + '(' + str.replace(np.array_str(self), '\n', '\n         ') + ')'
+            return self.__name__() + '(' + str.replace(np.array_str(self, precision=4, suppress_small=True), '\n', '\n         ') + ')'
         elif isinstance(self, state):
-            return np.array_str(self)
+            return np.array_str(self, precision=4, suppress_small=True)
         else:
             raise NotImplementedError
 
@@ -225,9 +222,14 @@ class ket(state):
     def __name__(self):
         return 'ket'
 
+    # Define representation
+    def __repr__(self):
+        # Format the output to show ket notation
+        return 'ket(' + str.replace(self.array_str(), '\n', '\n    ')
+
 # Define the operator class
 class operator(state):
-    """The operator state Ô is a matrix like numpy.ndarray that follows the rules
+    """The operator state O is a matrix like numpy.ndarray that follows the rules
     of Dirac notation.
     Beyond the numpy methods of numpy.ndarray, It has the following methods:
 
@@ -253,15 +255,12 @@ class operator(state):
         w = w[I]
         v = v[:, I]
 
-        # Store the output as a list of bras's
-        v = operator(v.T)
-
         return w, v
 
     # Define print string
     def __str__(self):
         # Format the output to show operator notation
-        return u'O = ' + str.replace(np.array_str(self), '\n', '\n    ')
+        return u'O = ' + str.replace(np.array_str(self, precision=4, suppress_small=True), '\n', '\n    ')
 
     # Define name
     def __name__(self):
@@ -269,10 +268,29 @@ class operator(state):
 
     # Overwrite the index operators
     def __getitem__(self, index):
+
+        # User has given slice
         if isinstance(index, tuple):
-            return super().__getitem__(index)
+
+            # Tuple has more than two inputs
+            if np.size(index) > 2:
+                raise Exception('Operator is 2D')
+
+            # User requests horizontal silce
+            elif isinstance(index[1],slice) and isinstance(index[0],int) :
+                return bra(super().__getitem__(index))
+
+            # User requests vertical slice
+            elif isinstance(index[0],slice)  and isinstance(index[1],int) :
+                return ket(super().__getitem__(index))
+
+            # User requests 2D slice
+            else :
+                return super().__getitem__(index)
+
+        # User has given scalar
         else:
-            return bra(super().__getitem__(index))
+            return ket(super().__getitem__((slice(None,None,None),index)))
 
 # Define function to verify the data inputs
 def verify_data_format(data, dim='1D'):
@@ -311,6 +329,10 @@ def verify_data_format(data, dim='1D'):
                 if dx != dy:
                     raise Exception('Input must be a square matrix')
 
+                # Cast boolean inputs to integer
+                if data.dtype == np.dtype('bool'):
+                    data = data.astype(int)
+                    
                 # Reshape the output to be of shape (N,N)
                 return data
 
@@ -324,9 +346,15 @@ def verify_data_format(data, dim='1D'):
 
 # Define video writer function
 def make_video(fmtstr, outputname='video.mp4', framerate=30):
-    # fmtstr includes information of where the images are stored and how they are named
-    # example 1: fmtstr = 'video/%3d.png'
-    # example 2: fmtstr = 'video/'
+    """make_video() calls the external library FFmpeg to write images into a video
+
+    Parameters
+    ---------------------------------------
+    - fmtstr : includes information of where the images are stored and how they are named
+        example 1: fmtstr = 'video/%3d.png'
+        example 2: fmtstr = 'video/'
+    - outputname : lets you set the name of the video
+    - framerate : controls the framerate"""
 
     # Generate an output path
     outputpath = fmtstr.split('/')
