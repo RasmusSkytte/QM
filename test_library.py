@@ -91,7 +91,7 @@ A = -A
 assert(np.all(q.bra([1, 2, 3, 4]).prob() == [1, 4, 9, 16]))
 
 # indexing
-assert(isinstance(B[0], q.bra))
+assert(isinstance(B[0], q.ket))
 
 # Numpy function testing ############################################
 # .all()
