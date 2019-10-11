@@ -5,10 +5,11 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 
 setup(
-    name='QM',
+    name='QM-KU',
     version='1.0',
+    scripts=['QM'],
     description='QM library introducing vector-like and matrix like bra, ket, and operator classes',
-    license="cc-by-sa-4.0)",
+    license="cc-by-sa-4.0",
     long_description=long_description,
     author='Rasmus Skytte Eriksen',
     author_email='rasmus.eriksen@nbi.ku.dk',
