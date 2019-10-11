@@ -332,7 +332,7 @@ def verify_data_format(data, dim='1D'):
                 # Cast boolean inputs to integer
                 if data.dtype == np.dtype('bool'):
                     data = data.astype(int)
-                    
+
                 # Reshape the output to be of shape (N,N)
                 return data
 
@@ -371,11 +371,17 @@ def make_video(fmtstr, outputname='video.mp4', framerate=30):
         else :
             outputpath = fmtstr + '/' + outputname
 
-    # Check that ffmpeg is installe
-    f = os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s' % (framerate, fmtstr, outputpath))
+    # Check that ffmpeg is installed
+    f = os.system('ffmpeg -version')
 
     if f != 0:
         raise Exception('Could not use ffmpeg. Are you sure it is installed?')
+
+    # Attempt to compile video
+    f = os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath))
+
+    if f != 0:
+        raise Exception('Error using ffmpeg. Is the input correctly formatted?')
 
 
 # Define a few useful quantities
