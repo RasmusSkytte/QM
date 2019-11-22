@@ -5,6 +5,11 @@ The library can be used by placing the <span>QM</span>.py alongside your code, o
 ```bash
 python setup.py install
 ```
+The library is also registred with PyPi and you can install it with:
+```bash
+pip install QM-KU
+```
+
 # Quick start
 ```python
 # Load library
