@@ -1,4 +1,4 @@
-QM
+QM.py
 README.md
 __init__.py
 example.py

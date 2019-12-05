@@ -3,7 +3,7 @@
 # Use numpy as backend for storing data
 import numpy as np
 import numbers
-import subprocess
+import os
 
 # Define the state class
 class state(np.ndarray):
@@ -371,22 +371,21 @@ def make_video(fmtstr, outputname='video.mp4', framerate=30):
         else :
             outputpath = fmtstr + '/' + outputname
 
-    # Check that ffmpeg is installed
-    retcode  = subprocess.call('ffmpeg -version', shell=True)
+   # Check that ffmpeg is installed
+    f = os.system('ffmpeg -version')
 
-    if retcode  != 0:
+    if f != 0:
         raise Exception('Could not use ffmpeg. Are you sure it is installed?')
 
-    # Attempt to compile video
-    try:
-        retcode = subprocess.call('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath), shell=True)
-        if retcode < 0:
-            print("ffmpeg was terminated by signal", -retcode, file=sys.stderr)
-        else:
-            print("ffmpeg returned", retcode, file=sys.stderr)
-    except OSError as e:
-        print("Execution failed:", e, file=sys.stderr)
+    # Attempt to compile video using H.264
+    f = os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath))
 
+    if f != 0:
+         # Attempt to compile video
+        f = os.system('ffmpeg -r %d -f image2 -i %s -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath))
+
+        if f != 0:
+            raise Exception('Error using ffmpeg. Is the input correctly formatted?')
 
 # Define a few useful quantities
 c = 299792458                   # [m / s]   Speed of light
