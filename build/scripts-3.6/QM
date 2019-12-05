@@ -3,7 +3,7 @@
 # Use numpy as backend for storing data
 import numpy as np
 import numbers
-import os
+import subprocess
 
 # Define the state class
 class state(np.ndarray):
@@ -372,16 +372,20 @@ def make_video(fmtstr, outputname='video.mp4', framerate=30):
             outputpath = fmtstr + '/' + outputname
 
     # Check that ffmpeg is installed
-    f = os.system('ffmpeg -version')
+    retcode  = subprocess.call('ffmpeg -version', shell=True)
 
-    if f != 0:
+    if retcode  != 0:
         raise Exception('Could not use ffmpeg. Are you sure it is installed?')
 
     # Attempt to compile video
-    f = os.system('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath))
-
-    if f != 0:
-        raise Exception('Error using ffmpeg. Is the input correctly formatted?')
+    try:
+        retcode = subprocess.call('ffmpeg -r %d -f image2 -i %s -vcodec libx264 -crf 25 -pix_fmt yuv420p %s -y' % (framerate, fmtstr, outputpath), shell=True)
+        if retcode < 0:
+            print("ffmpeg was terminated by signal", -retcode, file=sys.stderr)
+        else:
+            print("ffmpeg returned", retcode, file=sys.stderr)
+    except OSError as e:
+        print("Execution failed:", e, file=sys.stderr)
 
 
 # Define a few useful quantities

@@ -6,7 +6,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='QM-KU',
-    version='1.0',
+    version='1.1',
     scripts=['QM'],
     description='QM library introducing vector-like and matrix like bra, ket, and operator classes',
     license="cc-by-sa-4.0",
