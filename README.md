@@ -7,7 +7,7 @@ python setup.py install
 ```
 The library is also registred with PyPi and you can install it with:
 ```bash
-pip install QM-KU
+pip install QM-KU==1.1.1
 ```
 
 # Quick start
