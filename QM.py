@@ -238,7 +238,7 @@ class operator(state):
         2) An operator containing the (sorted) eigenvectors
            e.g. the first eigenvector is a bra located at index O[0]"""
 
-    def __new__(self, data, enforceDimensions=True):
+    def __new__(self, data):
         # Copy the parents information
         return super().__new__(operator, verify_data_format(data, dim='operator'))
 
