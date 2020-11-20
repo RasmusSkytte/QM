@@ -43,8 +43,8 @@ All of three objects are array-like:
 
 The classes are subclasses of numpy.ndarray, and they work with numpy functions. (e.g. np.shape(), np.linalg.norm())
 
-The classes overload the arithmatic operator +, -, and * such that they obey the rules of Dirac notation.
-That is, multiplication can only be done between the correct classes and the operation does not commute.
+The classes overload the arithmatic operators +, -, and * such that they obey the rules of Dirac notation.
+That is, multiplication can only be done between the correct classes and the operations do not commute.
 
 In addition to introducing Dirac-like arithmatic operator, the library includes two methods:
 
