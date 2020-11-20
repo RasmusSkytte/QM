@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!python
 
 # Use numpy as backend for storing data
 import numpy as np
@@ -234,11 +234,11 @@ class operator(state):
     Beyond the numpy methods of numpy.ndarray, It has the following methods:
 
     .eig() - returns a tuple containing:
-        1) numpy.ndarray with the (sorted) eigenvalues, 
+        1) numpy.ndarray with the (sorted) eigenvalues,
         2) An operator containing the (sorted) eigenvectors
            e.g. the first eigenvector is a bra located at index O[0]"""
 
-    def __new__(self, data, enforceDimensions=True):
+    def __new__(self, data):
         # Copy the parents information
         return super().__new__(operator, verify_data_format(data, dim='operator'))
 
@@ -272,21 +272,25 @@ class operator(state):
         # User has given slice
         if isinstance(index, tuple):
 
+            # Tuple has more than two inputs
+            if np.size(index) > 2:
+                raise Exception('Operator is 2D')
+
             # User requests horizontal silce
-            if isinstance(index[1], slice) and isinstance(index[0], int) :
+            elif isinstance(index[1],slice) and isinstance(index[0],int) :
                 return bra(super().__getitem__(index))
 
             # User requests vertical slice
-            elif isinstance(index[0], slice)  and isinstance(index[1], int) :
+            elif isinstance(index[0],slice)  and isinstance(index[1],int) :
                 return ket(super().__getitem__(index))
 
-            # User requests single index
+            # User requests 2D slice
             else :
                 return super().__getitem__(index)
 
         # User has given scalar
         else:
-            return ket(super().__getitem__((slice(None, None, None), index)))
+            return ket(super().__getitem__((slice(None,None,None),index)))
 
 # Define function to verify the data inputs
 def verify_data_format(data, dim='1D'):
@@ -295,7 +299,7 @@ def verify_data_format(data, dim='1D'):
     if isinstance(data, list):
         data = np.array(data)
 
-    if isinstance(data, np.ndarray):  # In numpy array format, reshape to be shape (N, ) or (N, N)
+    if isinstance(data, np.ndarray):  # In numpy array format, reshape to be shape (N,) or (N,N)
 
         # Get current shape
         shape = np.shape(data)
@@ -316,8 +320,8 @@ def verify_data_format(data, dim='1D'):
                     raise Exception(
                         'Input must be 1-D. Are you trying to make an operator?')
 
-                # Reshape the output to be of shape (N, )
-                return np.reshape(data, (dy, ))
+                # Reshape the output to be of shape (N,)
+                return np.reshape(data, (dy,))
 
             elif dim == 'operator':
 
@@ -329,7 +333,7 @@ def verify_data_format(data, dim='1D'):
                 if data.dtype == np.dtype('bool'):
                     data = data.astype(int)
 
-                # Reshape the output to be of shape (N, N)
+                # Reshape the output to be of shape (N,N)
                 return data
 
             # Type not recognized
