@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!python
 
 # Use numpy as backend for storing data
 import numpy as np
