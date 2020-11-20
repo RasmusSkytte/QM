@@ -50,4 +50,4 @@ In addition to introducing Dirac-like arithmatic operator, the library includes 
 
 .prob() - Which works on ```bra``` and ```ket``` and returns a numpy.ndarray containing the absolute value of each element
 
-.eig() - Which works on ```operator``` and returns a tuple containing a numpy.ndarray of sorted eigenvalues, followed by an operator with the sorted eigenvectors. The n'th eigenvector is stored at index n in the operator.
+.eig() - Which works on ```operator``` and returns a tuple containing a numpy.ndarray of sorted eigenvalues, followed by an operator with the sorted eigenvectors. The n'th eigenvector is stored at index n in the ```operator```.
