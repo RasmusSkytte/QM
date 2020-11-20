@@ -41,13 +41,13 @@ This library introduces three classes ```bra```, ```ket``` and ```operator```.
 All of three objects are array-like:
 ```bra```, ```ket``` are vector-like, while ```operator``` is matrix-like.
 
-The classes are subclasses of numpy.ndarray, and they work with numpy functions. (e.g. np.shape(), np.linalg.norm())
+The classes are subclasses of numpy.ndarray, and they work with numpy functions. (e.g. ```np.shape()```, ```np.linalg.norm()```)
 
 The classes overload the arithmatic operators ```+```, ```-```, and ```*``` such that they obey the rules of Dirac notation.
 That is, multiplication can only be done between the correct classes and the operations do not commute.
 
 In addition to introducing Dirac-like arithmatic operator, the library includes two methods:
 
-.prob() - Which works on ```bra``` and ```ket``` and returns a numpy.ndarray containing the absolute value of each element
+```.prob()``` - Which works on ```bra``` and ```ket``` and returns a numpy.ndarray containing the absolute value of each element
 
-.eig() - Which works on ```operator``` and returns a tuple containing a numpy.ndarray of sorted eigenvalues, followed by an operator with the sorted eigenvectors. The n'th eigenvector is stored at index n in the ```operator```.
+```.eig()``` - Which works on ```operator``` and returns a tuple containing a numpy.ndarray of sorted eigenvalues, followed by an operator with the sorted eigenvectors. The n'th eigenvector is stored at index n in the ```operator```.
